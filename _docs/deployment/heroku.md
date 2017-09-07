@@ -7,10 +7,6 @@ order: 4.3
 
 # Heroku
 
-<div class="alert alert-danger" role="alert">
-  <strong>As of February 2017, this document is deprecated. It will not be maintained anymore and will soon be removed.</strong>
-</div>
-
 This document will explain how to install The Lounge on Heroku. If you want to learn about Heroku you should read their [documentation](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction).
 
 <div class="alert alert-warning" role="alert">
@@ -26,6 +22,9 @@ This document will explain how to install The Lounge on Heroku. If you want to l
     In practice, you get no always-on functionality with an unpaid Heroku account.
   </p>
 </div>
+
+As a hack, you can use a service like <a href="https://uptimerobot.com/">Uptime Robot</a> to
+fetch a page every half hour or so. This will act as a keep-alive.
 
 ### Step 1:
 
@@ -47,6 +46,18 @@ NODE_ENV=production npm run build
 ```
 
 ### Step 3:
+Comment out lines 10 to 14 in `.gitignore` to ensure that all built files are
+committed to your repository.
+
+### Step 4:
+Heroku works by forwarding a port specified in the `PORT` environment variable to
+port `80`. Modify the `port` configuration value to use Heroku's environment variable:
+
+```
+port: process.env.PORT,
+```
+
+### Step 5:
 
 In the `lounge/` directory, run:
 
@@ -54,25 +65,23 @@ In the `lounge/` directory, run:
 heroku create
 ```
 
-### Step 4: (optional)
+### Step 6: (optional for user access control)
 
-_This step is only useful if you want to run The Lounge with users accounts._
-
-Create a `Procfile` and edit the content to look like this:
+Set configuration variables:
 
 ```
-web: node index --private --home /app
+heroku config:set LOUNGE_HOME=/app
 ```
-
-_You can read more about Procfiles [here](https://devcenter.heroku.com/articles/procfile)._
 
 To create users, run the following in the `lounge/` directory:
 
 ```
-./index.js --home . add <username>
+LOUNGE_HOME=. ./index.js add <username>
 ```
 
-### Step 5:
+This will still default to putting your config in ~/.lounge, so you'll need to copy the users directory across to your lounge/ directory. Beware that this will put your hashed password in a config file - think whether you want to commit that to a public respository.
+
+### Step 7:
 
 Time to publish to Heroku!
 
